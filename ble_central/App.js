@@ -9,7 +9,8 @@ import {
   ActivityIndicator,
   FlatList,
   SafeAreaView,
-  Linking
+  Linking,
+  ScrollView
 } from 'react-native';
 import { BleManager } from 'react-native-ble-plx';
 
@@ -37,7 +38,8 @@ export default class App extends React.PureComponent {
       bleState: null,
       scanning: false,
       devices: [],
-      connectedDevice: null
+      connectedDevice: null,
+      services: []
     };
     this._initBleManager();
   }
@@ -148,37 +150,48 @@ export default class App extends React.PureComponent {
 
     await device.discoverAllServicesAndCharacteristics();
     const services = await device.services();
-    console.log('services:', services);
-    for (let i = 0; i < services.length; i++) {
-      const characteristics = await services[0].characteristics();
-      console.log('characteristics:', characteristics);
-    }
+    this.setState({
+      services
+    });
   }
 
   renderDevice = ({ item }) => {
     return (
       <TouchableWithoutFeedback onPress={() => this.connectDevice(item)}>
-        <View style={styles.device}>
-          <Text style={styles.deviceId}>{item.id}</Text>
-          <Text style={styles.deviceName}>{item.localName || item.name}</Text>
+        <View style={styles.listItem}>
+          <Text style={styles.itemId}>{item.id}</Text>
+          <Text style={styles.itemName}>{item.localName || item.name}</Text>
+        </View>
+      </TouchableWithoutFeedback>
+    )
+  }
+
+
+  renderService = ({ item }) => {
+    return (
+      <TouchableWithoutFeedback onPress={() => this.connectDevice(item)}>
+        <View style={styles.listItem}>
+          <Text style={styles.itemId}>{item.id}</Text>
+          <Text style={styles.itemName}>{item.uuid}</Text>
         </View>
       </TouchableWithoutFeedback>
     )
   }
 
   render() {
-    const { scanning, devices, connectedDevice } = this.state;
+    const { scanning, devices, connectedDevice, services } = this.state;
     return (
       <SafeAreaView style={styles.fill}>
-        <View style={styles.header}>
-          {scanning && <ActivityIndicator size="large" />}
-          <View style={styles.buttonContainer}>
-            <Button style={{ marginRight: 16 }} onPress={this.stopScan} disabled={!scanning}>停止搜索</Button>
-            <Button onPress={this.scanDevices} disabled={scanning}>开始搜索</Button>
+        <ScrollView>
+          <View style={styles.header}>
+            {scanning && <ActivityIndicator size="large" />}
+            <View style={styles.buttonContainer}>
+              <Button style={{ marginRight: 16 }} onPress={this.stopScan} disabled={!scanning}>停止搜索</Button>
+              <Button onPress={this.scanDevices} disabled={scanning}>开始搜索</Button>
+            </View>
           </View>
-        </View>
-        <View style={styles.fill}>
           <FlatList
+            ListEmptyComponent={() => <Text style={styles.placeholder}>暂无设备</Text>}
             data={devices}
             ItemSeparatorComponent={() => <View style={styles.border} />}
             keyExtractor={(item, index) => '' + index}
@@ -186,12 +199,20 @@ export default class App extends React.PureComponent {
             style={styles.list}
           />
           <View style={styles.wrapper}>
-            <View>
+            <View style={{ marginBottom: 16 }}>
               <Text style={styles.label}>当前连接的设备：</Text>
-              <Text>{connectedDevice ? connectedDevice.id : '无'}</Text>
+              <Text>{connectedDevice ? connectedDevice.id : '尚未连接任何设备'}</Text>
             </View>
           </View>
-        </View>
+          <FlatList
+            ListEmptyComponent={() => <Text style={styles.placeholder}>暂无服务</Text>}
+            data={services}
+            ItemSeparatorComponent={() => <View style={styles.border} />}
+            keyExtractor={(item, index) => '' + index}
+            renderItem={this.renderService}
+            style={[styles.list, { height: 200 }]}
+          />
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -225,31 +246,37 @@ const styles = StyleSheet.create({
   disabledBtn: {
     opacity: 0.4
   },
-  device: {
+  listItem: {
     paddingLeft: 16,
     paddingVertical: 8
   },
-  deviceId: {
+  itemId: {
     fontSize: 16
   },
-  deviceName: {
+  itemName: {
     color: '#666'
   },
   border: {
     backgroundColor: '#d9d9d9',
-    height: 1
+    height: 0.5
   },
   list: {
-    flex: 1,
+    height: 300,
     paddingVertical: 10,
+    borderWidth: 0.5,
+    borderColor: '#E7E9EB',
   },
   wrapper: {
-    flex: 1,
     paddingTop: 16,
     paddingHorizontal: 16
   },
   label: {
+    fontSize: 16,
     fontWeight: '500',
     marginBottom: 8
+  },
+  placeholder: {
+    paddingLeft: 16,
+    color: '#666'
   }
 });

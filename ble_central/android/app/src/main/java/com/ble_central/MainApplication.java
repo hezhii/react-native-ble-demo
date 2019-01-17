@@ -1,4 +1,4 @@
-package com.ble_demo;
+package com.ble_central;
 
 import android.app.Application;
 

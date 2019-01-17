@@ -1,4 +1,4 @@
-package com.ble_demo;
+package com.ble_central;
 
 import com.facebook.react.ReactActivity;
 
@@ -10,6 +10,6 @@ public class MainActivity extends ReactActivity {
      */
     @Override
     protected String getMainComponentName() {
-        return "ble_demo";
+        return "ble_central";
     }
 }

@@ -1,4 +1,4 @@
-rootProject.name = 'ble_demo'
+rootProject.name = 'ble_central'
 include ':react-native-ble-plx'
 project(':react-native-ble-plx').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-ble-plx/android')
 

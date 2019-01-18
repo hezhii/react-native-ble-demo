@@ -41,11 +41,11 @@ export default class App extends React.PureComponent {
     * https://github.com/himelbrand/react-native-ble-peripheral#add-characteristic
     * https://developer.android.com/reference/android/bluetooth/BluetoothGattCharacteristic
     * 
-    * 属性和权限是 int 型，通过数值相加添加多个权限和属性，类似 linux 文件系统的权限。
+    * 属性和权限是 int 型，通过数值相加添加多个权限和属性，多个之间通过 | 连接。
     * 
     * 这里添加了可读、可写权限和属性
     */
-    BLEPeripheral.addCharacteristicToService(serviceId, characteristicId, 10, 10);
+    BLEPeripheral.addCharacteristicToService(serviceId, characteristicId, 1 | 16, 16 | 2 | 4 | 8);
   }
 
   start = () => {

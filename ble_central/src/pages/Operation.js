@@ -53,7 +53,10 @@ export default class Operation extends React.PureComponent {
     console.log('开始写入特征值：', str)
     this.characteristic.writeWithResponse(str)
       .then(() => {
-        console.log('成功写入特征值')
+        Alert.alert('成功写入特征值', '现在点击读取特征值看看吧...')
+      })
+      .catch(err => {
+        console.log('写入特征值出错：', err)
       })
   }
 

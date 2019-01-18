@@ -210,7 +210,6 @@ const styles = StyleSheet.create({
     flex: 1
   },
   header: {
-    backgroundColor: '#fff',
     flexDirection: 'row',
     padding: 15
   },
@@ -218,9 +217,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#f5f5f5',
-    paddingHorizontal: 15,
-    paddingVertical: 10
+    backgroundColor: '#f5f5f9',
+    padding: 15
   },
   row: {
     flexDirection: 'row',
@@ -229,6 +227,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 15,
     marginRight: 6,
-    fontWeight: '500'
+    fontWeight: '500',
   }
 })

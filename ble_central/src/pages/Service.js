@@ -16,8 +16,7 @@ export default class Service extends React.PureComponent {
     const { navigation } = props
     this.device = navigation.getParam('device')
     this.state = {
-      services: [],
-      loading: false
+      services: []
     }
   }
 
@@ -26,15 +25,10 @@ export default class Service extends React.PureComponent {
   }
 
   getServices() {
-    this.setState({
-      loading: true
-    })
     this.device.services()
       .then(services => {
-        console.log(services)
         this.setState({
-          services,
-          loading: false
+          services
         })
       })
   }
@@ -51,7 +45,7 @@ export default class Service extends React.PureComponent {
       <SafeAreaView style={styles.fill}>
         <WingBlank style={{ paddingVertical: 10 }}>
           <Text style={styles.label}>设备 ID:</Text>
-          <Text style={styles.value}>{this.device.id}</Text>
+          <Text style={styles.value}>{device.id}</Text>
           <Text style={styles.label}>设备名称:</Text>
           <Text style={styles.value}>{device.localName || device.name || '无'}</Text>
         </WingBlank>
@@ -66,7 +60,6 @@ export default class Service extends React.PureComponent {
                 <Brief>{`UUID: ${service.uuid}`}</Brief>
               </ListItem>
             ))}
-
           </List>
         </ScrollView>
       </SafeAreaView >
@@ -84,7 +77,8 @@ const styles = StyleSheet.create({
   },
   value: {
     marginTop: 8,
-    marginBottom: 10
+    marginBottom: 10,
+    color: '#666'
   },
   listHeader: {
     flexDirection: 'row',

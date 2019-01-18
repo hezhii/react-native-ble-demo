@@ -13,8 +13,9 @@ export default class Device extends React.PureComponent {
     title: '已连接的设备'
   }
 
-  onPressDevice = ({ item }) => {
-
+  onPressDevice = (item) => {
+    const { navigation } = this.props
+    navigation.push('Service', { device: item })
   }
 
   render() {

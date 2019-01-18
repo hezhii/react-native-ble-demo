@@ -12,6 +12,7 @@ import { BleManager } from 'react-native-ble-plx'
 import { SafeAreaView } from 'react-navigation'
 import { connect } from 'react-redux'
 import HeaderButtons, { Item } from 'react-navigation-header-buttons'
+import { Toast, Portal } from '@ant-design/react-native'
 
 import Button from '../components/Button'
 import DeviceList from '../components/DeviceList'
@@ -144,16 +145,18 @@ export default class Search extends React.PureComponent {
       return
     }
     this.stopScan() // 连接时停止扫描
+    const key = Toast.loading('正在连接设备...')
     await device.connect()
     console.log('成功连接设备：', device.id)
     await device.discoverAllServicesAndCharacteristics()
     console.log('获取设备的服务和特征')
+    Portal.remove(key)
     dispatch({
       type: ADD_DEVICE,
       payload: device
     })
     Alert.alert('成功连接设备', null, [
-      { text: '取消' },
+      { text: '算了' },
       { text: '去看看', onPress: () => navigation.push('Device') }
     ])
   }

@@ -8,6 +8,12 @@
       {
         "legacy": true
       }
+    ],
+    [
+      "import",
+      {
+        "libraryName": "@ant-design/react-native"
+      }
     ]
   ]
 }

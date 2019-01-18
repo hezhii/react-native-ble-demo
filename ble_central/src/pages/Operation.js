@@ -4,6 +4,21 @@ import { SafeAreaView } from 'react-navigation'
 import { WingBlank, Button } from '@ant-design/react-native'
 import { Buffer } from 'buffer/'
 
+function formatToDecimal(buffer) {
+  const hexStr = buffer.toString('hex')
+  return hexStr ? parseInt(hexStr, 16) : ''
+}
+
+function strToBinary(str) {
+  const result = [];
+  const list = str.split("");
+  for (let i = 0; i < list.length; i++) {
+    const str = list[i].charCodeAt().toString(2);
+    result.push(str);
+  }
+  return result.join("");
+}
+
 export default class Operation extends React.PureComponent {
   static navigationOptions = {
     title: '读写特征'
@@ -22,8 +37,11 @@ export default class Operation extends React.PureComponent {
   read = () => {
     this.characteristic.read()
       .then(characteristic => {
-        console.log(characteristic === this.characteristic);
-        console.log('读取特征:', characteristic)
+        console.log('读取特征值：', characteristic.value)
+        this.setState({
+          // readValue: Buffer.from(characteristic.value, 'base64').toString()
+          readValue: characteristic.value
+        })
       })
   }
 
@@ -32,15 +50,18 @@ export default class Operation extends React.PureComponent {
     if (!writeValue) {
       Alert.alert('请输入要写入的特征值')
     }
-    console.log(writeValue);
-    console.log(Buffer.from(writeValue, 'hex'))
-    console.log(Buffer.from(writeValue, 'hex').toString('base64'))
-    // this.characteristic.writeWithResponse()
+    const str = Buffer.from(writeValue, 'hex').toString('base64')
+    console.log('开始写入特征值：', str)
+    this.characteristic.writeWithResponse(str)
+      .then(() => {
+        console.log('成功写入特征值')
+      })
   }
 
   render() {
-    const charac = this.characteristic || {}
+    const charac = this.characteristic
     const { readValue, writeValue } = this.state;
+    const buffer = Buffer.from(readValue, 'base64');
     return (
       <SafeAreaView style={styles.fill}>
         <ScrollView style={styles.fill}>
@@ -67,8 +88,11 @@ export default class Operation extends React.PureComponent {
               <Text style={styles.des}>{charac.isNotifiable ? '是' : '否'}</Text>
               </Text>
             </View>
-            <Text style={styles.label}>当前特征值:</Text>
-            <Text style={styles.value}>{readValue || '无'}</Text>
+            <Text style={styles.label}>当前特征值</Text>
+            <Text style={styles.charac}>{`二进制: ${strToBinary(buffer.toString())}`}</Text>
+            <Text style={styles.charac}>{`十进制: ${formatToDecimal(buffer)}`}</Text>
+            <Text style={styles.charac}>{`十六进制: ${buffer.toString('hex')}`}</Text>
+            <Text style={styles.charac}>{`UTF8: ${buffer.toString()}`}</Text>
             <Button type="primary" style={{ marginTop: 8 }} onPress={this.read}>读取特征值</Button>
             <TextInput
               style={styles.input}
@@ -113,5 +137,10 @@ const styles = StyleSheet.create({
   },
   input: {
     marginVertical: 32
+  },
+  charac: {
+    fontSize: 15,
+    color: '#666',
+    marginVertical: 5
   }
 })

@@ -27,7 +27,6 @@ export default class Characteristic extends React.PureComponent {
   getCharacteristics() {
     this.service.characteristics()
       .then(characteristics => {
-        console.log(characteristics)
         this.setState({
           characteristics
         })

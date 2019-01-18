@@ -39,7 +39,6 @@ export default class Operation extends React.PureComponent {
       .then(characteristic => {
         console.log('读取特征值：', characteristic.value)
         this.setState({
-          // readValue: Buffer.from(characteristic.value, 'base64').toString()
           readValue: characteristic.value
         })
       })

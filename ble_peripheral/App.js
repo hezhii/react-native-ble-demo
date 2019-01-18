@@ -1,22 +1,10 @@
-import React from 'react';
-import {
-  StyleSheet,
-  ScrollView,
-  View,
-  Button,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  FlatList,
-  Alert
-} from 'react-native';
-import uuidv1 from 'uuid/v1';
+import React from 'react'
+import { StyleSheet, ScrollView, Button, Text, View, TextInput, Alert } from 'react-native'
 import BLEPeripheral from 'react-native-ble-peripheral'
-
-import Card from './Card';
+import uuidv4 from 'uuid/v4'
 
 function formatData(hexStr) {
-  let len = str.length;
+  let len = hexStr.length;
   if (len % 2 != 0) {
     return null;
   }
@@ -24,8 +12,8 @@ function formatData(hexStr) {
   let pos = 0;
   const arr = [];
   for (let i = 0; i < len; i++) {
-    const v = parseInt(str.substr(pos, 2), 16);
-    hexA.push(v);
+    const v = parseInt(hexStr.substr(pos, 2), 16);
+    arr.push(v);
     pos += 2;
   }
   console.log(`十六进制字符串:${hexStr}，转换后的结果为:\n`, arr)
@@ -33,138 +21,70 @@ function formatData(hexStr) {
 }
 
 export default class App extends React.PureComponent {
-  state = {
-    services: [],
-    characteristics: [],
-    serviceId: '',
-    sendServiceId: '',
-    sendCharId: '',
-    sendData: ''
-  }
+  constructor(props) {
+    super(props)
 
-  onAddService = () => {
-    const { services } = this.state;
-    const serviceId = uuidv1();
-    BLEPeripheral.addService(serviceId, true);
-    this.setState({
-      services: [...services, serviceId]
-    })
-    console.log('添加服务...\n服务 ID 为:', serviceId);
-  }
-
-  onAddCharacteristics = () => {
-    const { characteristics, serviceId } = this.state;
-    if (!serviceId) {
-      Alert.alert('请填写特征所属的服务 ID');
+    this.state = {
+      sendData: ''
     }
-    const id = uuidv1();
-    BLEPeripheral.addCharacteristicToService(serviceId, id, 16, 8);
-    this.setState({
-      characteristics: [...characteristics, id]
-    })
-    console.log(`添加特征...\n服务 ID 为:${serviceId}；特征 ID 为:${id}`)
+    this.init()
+  }
+
+  // 生成服务和特征，由于广播数据大小的限制，只生成一个服务和特征
+  init() {
+    const serviceId = this.serviceId = uuidv4()
+    const characteristicId = this.characteristicId = uuidv4()
+
+    BLEPeripheral.addService(serviceId, true);
+    /*
+    * 添加特征，参数参考：
+    * https://github.com/himelbrand/react-native-ble-peripheral#add-characteristic
+    * https://developer.android.com/reference/android/bluetooth/BluetoothGattCharacteristic
+    * 
+    * 属性和权限是 int 型，通过数值相加添加多个权限和属性，类似 linux 文件系统的权限。
+    * 
+    * 这里添加了可读、可写权限和属性
+    */
+    BLEPeripheral.addCharacteristicToService(serviceId, characteristicId, 10, 10);
   }
 
   start = () => {
     BLEPeripheral.start()
       .then(res => {
-        console.log(res)
-        console.log('开始广播')
-      }).catch(error => {
-        console.log('启动广播出错：', error)
+        Alert.alert('成功开始广播', '现在设备可以被搜索到了')
+      }).catch(err => {
+        const message = err.message === 'Advertising onStartFailure: 1' ? '广播数据太多了' : err.message
+        Alert.alert('广播失败', message)
       })
   }
 
   sendNotify = () => {
-    const { sendServiceId, sendCharId, sendData } = this.state;
-    BLEPeripheral.sendNotificationToDevices(sendServiceId, sendCharId, formatData(sendData));
-  }
-
-  renderItem = ({ item }) => {
-    return <Text style={styles.text} selectable>{item}</Text>
+    const { sendData } = this.state;
+    BLEPeripheral.sendNotificationToDevices(this.serviceId, this.characteristicId, formatData(sendData));
   }
 
   render() {
-    const {
-      services,
-      characteristics,
-      serviceId,
-      sendServiceId,
-      sendCharId,
-      sendData
-    } = this.state;
-
-    const service = (
-      <TouchableOpacity onPress={this.onAddService}>
-        <Text style={styles.extraBtn}>添加服务</Text>
-      </TouchableOpacity>
-    );
-
-    const characteristic = (
-      <TouchableOpacity onPress={this.onAddCharacteristics}>
-        <Text style={styles.extraBtn}>添加特征</Text>
-      </TouchableOpacity>
-    );
+    const { sendData } = this.state
     return (
       <ScrollView style={styles.container}>
-        <Text style={styles.readme}>{`使用方法：\n1. 点击开始广播；\n2. 添加服务；\n3. 复制服务 ID，添加特征；\n4. 再次点击开始广播。\n如果先添加服务和特征再广播会报错，第一次点击广播时，没有服务和特征。`}</Text>
-        <View style={styles.btnContainer}>
-          <Button title="开始广播" color="#096dd9" onPress={this.start} />
+        <Button title="开始广播" color="#096dd9" onPress={this.start} />
+        <View style={styles.info}>
+          <Text style={styles.label}>服务 ID:</Text>
+          <Text style={styles.value}>{this.serviceId}</Text>
+          <Text style={styles.label}>特征 ID:</Text>
+          <Text style={styles.value}>{this.characteristicId}</Text>
         </View>
-        <Card title="服务" style={styles.card} extra={service}>
-          <FlatList
-            data={services}
-            keyExtractor={(item, index) => '' + index}
-            renderItem={this.renderItem}
+        <View style={styles.row}>
+          <Text>数据:</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="请填写十六进制数（如：10A1）"
+            value={sendData}
+            onChangeText={v => this.setState({ sendData: v })}
           />
-        </Card>
-        <Card title="特征" style={styles.card} extra={characteristic}>
-          <View style={styles.formItem}>
-            <Text>服务 ID:</Text>
-            <TextInput
-              value={serviceId}
-              style={styles.input}
-              placeholder="请输入服务 ID"
-              onChangeText={v => this.setState({ serviceId: v })}
-            />
-          </View>
-          <FlatList
-            data={characteristics}
-            keyExtractor={(item, index) => '' + index}
-            renderItem={this.renderItem}
-          />
-        </Card>
-        <View style={styles.form}>
-          <View style={styles.formItem}>
-            <Text>服务:</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="请输入服务 ID"
-              value={sendServiceId}
-              onChangeText={v => this.setState({ sendServiceId: v })}
-            />
-          </View>
-          <View style={styles.formItem}>
-            <Text>特征:</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="请输入特征 ID"
-              value={sendCharId}
-              onChangeText={v => this.setState({ sendCharId: v })}
-            />
-          </View>
-          <View style={styles.formItem}>
-            <Text>数据:</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="请填写十六进制数（如：10A1）"
-              value={sendData}
-              onChangeText={v => this.setState({ sendData: v })}
-            />
-          </View>
-          <Button title="发送通知" color="#096dd9" onPress={this.sendNotify} />
         </View>
-      </ScrollView >
+        <Button title="发送通知" color="#096dd9" onPress={this.sendNotify} />
+      </ScrollView>
     )
   }
 }
@@ -172,25 +92,21 @@ export default class App extends React.PureComponent {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 15,
+    padding: 15
   },
-  readme: {
-    marginVertical: 10,
+  info: {
+    marginTop: 16
   },
-  btnContainer: {
-    marginBottom: 15,
+  label: {
+    color: '#333',
+    fontSize: 15,
+    fontWeight: '500'
   },
-  card: {
-    marginBottom: 15
+  value: {
+    marginTop: 5,
+    marginBottom: 8
   },
-  extraBtn: {
-    fontSize: 13,
-    color: '#096dd9',
-  },
-  form: {
-    paddingBottom: 15
-  },
-  formItem: {
+  row: {
     flexDirection: 'row',
     alignItems: 'center'
   },
@@ -198,8 +114,4 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
     flex: 1
   },
-  text: {
-    fontSize: 16,
-    color: '#333'
-  }
-});
+})

@@ -26,9 +26,23 @@ $ react-native run-ios # or react-native run-android
 
 外设程序基于 [react-native-ble-peripheral](https://github.com/himelbrand/react-native-ble-peripheral) 实现。按照文档上的说明，应该是先添加服务和特征，然后再开始广播。但是，我在实际使用的过程中，发现这样操作会报错，如果先开始广播则不会。因此，需要先开始广播，然后添加服务和特征，最后再进行一次广播。
 
+<div align=center>
+<img src="screenshot/peripheral.png">
+</div>
+
 ### 中心设备
 
 中心设备基于 [react-native-ble-plx](https://github.com/Polidea/react-native-ble-plx) 实现。
+
+<div align=center>
+<img src="screenshot/search.png">
+<img src="screenshot/characteristic.png">
+</div>
+
+支持的功能：
+- 扫描设备
+- 连接设备
+- 读取和写入特征
 
 ### 在同一台电脑上调试
 

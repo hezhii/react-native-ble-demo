@@ -22,9 +22,11 @@ $ react-native run-ios # or react-native run-android
 
 ### 外设
 
-打开外设程序，参考使用说明进行操作。
+外设程序基于 [react-native-ble-peripheral](https://github.com/himelbrand/react-native-ble-peripheral) 实现。
 
-外设程序基于 [react-native-ble-peripheral](https://github.com/himelbrand/react-native-ble-peripheral) 实现。按照文档上的说明，应该是先添加服务和特征，然后再开始广播。但是，我在实际使用的过程中，发现这样操作会报错，如果先开始广播则不会。因此，需要先开始广播，然后添加服务和特征，最后再进行一次广播。
+打开应用后，会添加一个服务和特征，点击“开始广播”按钮后，广播蓝牙信息，设备就可以被搜索到。填写特征数据，点击发送通知按钮可以发送数据给中心设备。
+
+备注：广播数据有大小限制（最大 31 字节），如果超过限制则无法正常广播。参考：https://developer.android.com/reference/android/bluetooth/le/AdvertiseCallback
 
 <div align=center>
 <img src="screenshot/peripheral.png">

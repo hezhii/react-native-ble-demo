@@ -9,7 +9,7 @@
   "dependencies": {
     "react": "16.6.3",
     "react-native": "0.57.8",
-    "react-native-ble-peripheral": "^1.2.0",
+    "react-native-ble-peripheral": "https://github.com/hezhii/react-native-ble-peripheral.git",
     "uuid": "^3.3.2"
   },
   "devDependencies": {

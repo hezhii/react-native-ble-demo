@@ -48,6 +48,7 @@ $ react-native run-ios # or react-native run-android
 
 ### 在同一台电脑上调试
 
-如果想要在同一台电脑上调试，需要修改其中一个程序的默认端口号，例如：`react-native start --port=8082`。
-
-然后通过 `adb reverse tcp:8081 tcp:8082` 把 8081 端口的请求映射到 8082 上。
+如果想要在同一台电脑上调试，需要修改其中一个程序的默认端口号。例如，可以让外设程序在 `8082` 端口上运行：
+```bash
+$ react-native run-android --port=8082
+```
